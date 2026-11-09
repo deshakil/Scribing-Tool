@@ -1,13 +1,21 @@
-# Scribing Tool
+# ClinicScribe (Scribing Tool)
 
 Ambient AI medical scribe: a doctor records the consultation, the system transcribes it with a medical speech model and drafts an evidence-linked clinical note for review and signing.
 
-## Contents
+## This repository
 
-- `prototype/` – clickable demo with fictional sample data (no live APIs). Open `prototype/index.html` in a browser, or see the Vercel deployment.
-- `PROTOTYPE-PLAN-1-LAKH.md` – scope, stack, timeline and costs for the one-month prototype build.
-- `FULL-PRODUCT-PLAN-REFERENCE.md` – reference plan for the full product (phases 2 and 3).
+Static review build of the website. No backend yet; recording, transcription and note generation are simulated with fictional sample data so the workflow can be reviewed before the real build.
 
-## Status
+| Page | Purpose |
+|---|---|
+| `index.html` | Landing page |
+| `login.html` | Doctor sign-in (demo account: `dr.sharma@demo.clinic` / `demo1234`) |
+| `app.html` | Visits, new visit, recording, note workspace, vocabulary |
+| `assets/` | Shared styles, demo auth, app logic |
+| `docs/` | Prototype plan (one-month scope and costs) and full-product reference plan |
 
-Demo stage. Recording, transcription and note generation are simulated with pre-written data so the workflow can be reviewed before the real build. All patients and clinical details are fictional.
+Open `index.html` directly in a browser, or deploy the repository root as a static site (Vercel: import the repo, no build step, no settings).
+
+## Next step after approval
+
+Replace `assets/auth.js` with Supabase Auth, wire recording upload to storage, and connect the transcription and note-generation APIs described in `docs/PROTOTYPE-PLAN-1-LAKH.md`.

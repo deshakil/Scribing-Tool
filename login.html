@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign in · ClinicScribe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="brand" href="index.html"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h2l2-6 3 12 3-9 2 3h4"/></svg></span>ClinicScribe</a>
+  <nav class="nav"><a href="index.html">Back to site</a></nav>
+</div></header>
+
+<main class="auth">
+  <div class="card">
+    <div class="eyebrow">Doctor sign in</div>
+    <h1>Welcome back</h1>
+    <p class="sub">Sign in to open your visits and start a new consultation.</p>
+    <form class="form" id="login" style="margin-top:22px" novalidate>
+      <div class="err" id="err" hidden></div>
+      <div class="field"><label for="email">Email</label><input type="email" id="email" autocomplete="username" placeholder="you@clinic.in" value="dr.sharma@demo.clinic"></div>
+      <div class="field"><label for="password">Password</label><input type="password" id="password" autocomplete="current-password" placeholder="••••••••" value="demo1234"></div>
+      <label class="ck"><input type="checkbox" id="remember" checked><span>Keep me signed in on this device</span></label>
+      <button class="btn primary wide lg" type="submit">Sign in</button>
+    </form>
+    <div class="demo-cred">
+      Demo account for this review build:<br>
+      <code>dr.sharma@demo.clinic</code> · <code>demo1234</code>
+      <br><button class="btn sm" type="button" id="use-demo">Sign in with the demo account</button>
+    </div>
+  </div>
+</main>
+
+<script src="assets/auth.js"></script>
+<script>
+(function(){
+  var f=document.getElementById('login'),err=document.getElementById('err');
+  function go(){location.href='app.html'}
+  if(ClinicAuth.current())go();
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var r=ClinicAuth.login(document.getElementById('email').value,document.getElementById('password').value,document.getElementById('remember').checked);
+    if(r.ok)go(); else {err.textContent=r.error;err.hidden=false}
+  });
+  document.getElementById('use-demo').addEventListener('click',function(){
+    document.getElementById('email').value='dr.sharma@demo.clinic';document.getElementById('password').value='demo1234';
+    ClinicAuth.login('dr.sharma@demo.clinic','demo1234',true);go();
+  });
+})();
+</script>
+</body>
+</html>

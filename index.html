@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ClinicScribe</title>
+<meta name="description" content="ClinicScribe listens to the consultation and drafts the clinical note, with every line linked to what was said.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="brand" href="index.html"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h2l2-6 3 12 3-9 2 3h4"/></svg></span>ClinicScribe</a>
+  <nav class="nav"><a href="#how">How it works</a><a href="#features">Features</a><a href="#trust">Trust</a><a class="btn primary" href="login.html">Doctor login</a></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <div class="eyebrow">AI scribe for clinics</div>
+      <h1>You talk to the patient. The note writes itself.</h1>
+      <p class="lede">ClinicScribe listens to the consultation, writes the clinical note in your format, and shows exactly where every line came from. You review, sign, and move on to the next patient.</p>
+      <div class="cta-row"><a class="btn primary lg" href="login.html">Doctor login</a><a class="btn lg" href="#how">See how it works</a></div>
+      <p class="small">Demo account available on the login page. No installation needed, works on your phone.</p>
+    </div>
+    <div class="mock" aria-label="Preview of a drafted note linked to the transcript">
+      <div class="mh"><b>R.K. · 52 M</b><span>Today, 10:42</span><span class="chip acc">SOAP</span><span class="chip draft" style="margin-left:auto">Draft</span></div>
+      <div class="mb">
+        <div class="mn">
+          <div><div class="lab">Subjective</div></div>
+          <div class="li">10-day history of dry cough, worse at night.<span class="ev">00:14</span></div>
+          <div class="li on">Mild breathlessness on climbing stairs; no fever or chest pain.<span class="ev">00:25 · 00:29</span></div>
+          <div class="li uns">Denies alcohol use.<span class="fl">No source in transcript</span></div>
+          <div><div class="lab">Plan</div></div>
+          <div class="li">Increase Metformin to 1000 mg BD with meals.<span class="ev">02:07</span></div>
+        </div>
+        <div class="mt">
+          <div class="tx d"><span class="t">00:14</span><span><span class="w">Doctor</span><br>Any fever, breathlessness or chest pain with the cough?</span></div>
+          <div class="tx p on"><span class="t">00:25</span><span><span class="w">Patient</span><br>No fever. A little breathlessness when I climb stairs, but no chest pain.</span></div>
+          <div class="tx d"><span class="t">00:29</span><span><span class="w">Doctor</span><br>Any blood in the sputum, or weight loss?</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="how">
+    <div class="eyebrow">How it works</div>
+    <h2>Three steps. Nothing changes about how you consult.</h2>
+    <div class="steps">
+      <div class="step-card"><div class="n">1</div><h3>Record</h3><p>Ask the patient, tap Record on your phone. Pause any time. Or dictate the note yourself after the visit.</p></div>
+      <div class="step-card"><div class="n">2</div><h3>Review the draft</h3><p>Within a minute you get a note in your template. Tap any line to see the exact words it came from. Lines with no source are flagged.</p></div>
+      <div class="step-card"><div class="n">3</div><h3>Sign and copy</h3><p>Edit what you want, sign, and copy the note into your EMR. The audio is deleted automatically.</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="features">
+    <div class="eyebrow">Features</div>
+    <h2>Everything a busy clinic needs. Nothing it doesn't.</h2>
+    <div class="grid3">
+      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div><h3>Record or dictate</h3><p>Ambient recording of the consultation, or dictation when you prefer to narrate. Both lead to the same note.</p></div>
+      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4.5 4.5 0 0 1 7 0"/></svg></div><h3>Medical transcript</h3><p>Doctor and patient turns separated, drug names and doses spelled correctly, your own clinic vocabulary recognised.</p></div>
+      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3h9l5 5v13H6zM14 3v6h6M9 13h7M9 17h7"/></svg></div><h3>Your templates</h3><p>SOAP, Follow-up and General consult out of the box. Sections and order set per doctor.</p></div>
+      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></div><h3>Every line has a source</h3><p>Tap a line in the note and the transcript jumps to the sentences behind it. Nothing is written that was not said.</p></div>
+      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4l10-10-4-4L4 16zM13 7l4 4"/></svg></div><h3>Edit, regenerate, sign</h3><p>Rewrite any section or ask for a fresh draft of just that section. Signing locks the note.</p></div>
+      <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="8" y="2" width="12" height="14" rx="2"/><path d="M16 16v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"/></svg></div><h3>Copy or PDF</h3><p>One click to copy the whole note or a section into any EMR. Formatted PDF for the file.</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="trust">
+    <div class="eyebrow">Built for trust</div>
+    <h2>Patients and doctors stay in control</h2>
+    <div class="trust">
+      <div class="t"><h3>Consent, every visit</h3><p>A short script to read to the patient and a logged consent before recording starts. Patients can decline.</p></div>
+      <div class="t"><h3>No invented findings</h3><p>Every statement is checked against the transcript. What was not discussed is listed as not addressed, not filled in.</p></div>
+      <div class="t"><h3>Audio deleted</h3><p>The recording is deleted 24 hours after you sign. Only the transcript and note are kept, and you can delete a visit at any time.</p></div>
+    </div>
+  </section>
+
+  <div class="cta-band">
+    <div><h2>Try it with a sample consultation</h2><p>Log in with the demo account, open a visit, and tap through the note. Everything you see uses fictional patients.</p></div>
+    <div class="r"><a class="btn lg" href="login.html">Doctor login</a></div>
+  </div>
+
+  <footer><span>ClinicScribe · Demo build, November 2026. All patients and clinical details are fictional.</span><span class="r"><a href="#how">How it works</a><a href="login.html">Login</a></span></footer>
+</main>
+</body>
+</html>

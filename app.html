@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Visits · ClinicScribe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="brand" href="index.html"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h2l2-6 3 12 3-9 2 3h4"/></svg></span>ClinicScribe</a>
+  <nav class="appnav">
+    <button id="tab-visits" class="on">Visits</button><button id="tab-vocab">Vocabulary</button>
+    <div class="me"><span class="avatar" id="me-avatar">—</span><span class="nm" id="me-name">—<small id="me-role"></small></span><button class="ib" id="btn-logout" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 17l5-5-5-5M15 12H3M21 4v16"/></svg>Sign out</button></div>
+  </nav>
+</div></header>
+
+<main class="app">
+  <div class="demo-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.3 3.9L2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Review build: recording and AI steps are simulated with sample data. All patients are fictional.</div>
+
+  <!-- Visits -->
+  <section id="scr-visits">
+    <div class="greet"><h1 id="greet">Good morning</h1><p id="greet-sub">Here are your recent visits.</p></div>
+    <div class="stats"><div class="stat"><div class="v" id="st-total">0</div><div class="l">Visits this week</div></div><div class="stat"><div class="v" id="st-draft">0</div><div class="l">Drafts waiting for review</div></div><div class="stat"><div class="v" id="st-time">1.6 min</div><div class="l">Average time from stop to draft</div></div></div>
+    <div class="panel">
+      <div class="panel-h"><h2>Visits</h2><div class="sp"><button class="btn primary" id="btn-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New visit</button></div></div>
+      <div class="vlist" id="vlist"></div>
+    </div>
+  </section>
+
+  <!-- New visit -->
+  <section id="scr-new" class="panel" hidden>
+    <div class="panel-h"><button class="ib" id="back-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>Visits</button><h2>New visit</h2></div>
+    <div class="panel-b"><form class="form" id="form-new" style="max-width:640px">
+      <div class="field"><label for="f-patient">Patient reference</label><input type="text" id="f-patient" value="R.K. · 52 M" autocomplete="off"><div class="hint">Initials or clinic ID only. No full name or phone number is stored.</div></div>
+      <div class="field"><label>Mode</label><div class="seg" id="seg-mode"><button type="button" data-v="ambient" class="on">Record consultation</button><button type="button" data-v="dictation">Dictate</button></div></div>
+      <div class="field"><label for="f-template">Note template</label><select id="f-template"><option value="soap">SOAP</option><option value="followup">Follow-up</option><option value="general">General consult</option></select></div>
+      <div class="consent" id="consent-box">
+        <div class="eyebrow">Patient consent</div>
+        <div class="script">"I use an AI assistant that records our conversation to help me write your notes. The recording is deleted after the note is done. Is that okay with you?"</div>
+        <label class="ck"><input type="checkbox" id="f-consent"><span>Patient gave verbal consent. Time and date will be stored with this visit.</span></label>
+      </div>
+      <div class="cta-row" style="margin-top:0;align-items:center"><button class="btn primary" type="submit" id="btn-start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Start recording</button><span id="start-hint" style="color:var(--muted);font-size:12.5px">Consent is required to start.</span></div>
+    </form></div>
+  </section>
+
+  <!-- Recording -->
+  <section id="scr-rec" class="panel" hidden>
+    <div class="panel-h"><h2 id="rec-title">Recording</h2><div class="sp"><span class="chip acc" id="rec-mode">Ambient</span><span class="chip" id="rec-template">SOAP</span></div></div>
+    <div class="panel-b rec">
+      <div class="live" id="rec-live"><i></i><span id="rec-live-t">Listening</span></div>
+      <div class="timer" id="rec-timer">00:00</div>
+      <canvas id="wave" width="1120" height="180"></canvas>
+      <div class="ctrls"><button class="btn" id="btn-pause">Pause</button><button class="btn primary" id="btn-stop">Stop and draft note</button></div>
+      <p class="tip">Stop whenever you like. In this review build a sample consultation is used for the transcript.</p>
+    </div>
+  </section>
+
+  <!-- Processing -->
+  <section id="scr-proc" class="panel" hidden>
+    <div class="panel-h"><h2>Drafting the note</h2></div>
+    <div class="panel-b"><div class="proc" id="proc"></div></div>
+  </section>
+
+  <!-- Workspace -->
+  <section id="scr-ws" class="panel" hidden>
+    <div class="ws-h">
+      <button class="ib" id="back-ws"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>Visits</button>
+      <div class="ttl"><h2 id="ws-title"></h2><div class="meta" id="ws-meta"></div></div>
+      <div class="acts" id="ws-acts"></div>
+    </div>
+    <div class="mtabs"><button id="mt-note" class="on">Note</button><button id="mt-tr">Transcript</button></div>
+    <div class="ws">
+      <div class="note-pane" id="note-pane">
+        <div class="pane-t"><b>Draft note</b><span id="ws-tname"></span><span class="sp"><button class="ib" id="btn-copy-all" title="Copy whole note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="8" y="2" width="12" height="14" rx="2"/><path d="M16 16v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"/></svg>Copy note</button></span></div>
+        <div id="note"></div>
+        <div class="na" id="na"></div>
+      </div>
+      <div id="tr-pane" class="off">
+        <div class="pane-t"><b>Transcript</b><span id="ws-trmeta"></span></div>
+        <div class="tr" id="tr"></div>
+        <div class="tr-foot" id="tr-foot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vocabulary -->
+  <section id="scr-vocab" class="panel" hidden>
+    <div class="panel-h"><h2>Clinic vocabulary</h2><span class="chip" id="vocab-who"></span></div>
+    <div class="panel-b">
+      <p style="color:var(--muted);font-size:13.5px;max-width:64ch">Terms in this list are sent to the speech model with every recording so they are recognised correctly the first time. Add drug names, procedures, local brand names and abbreviations your clinic uses.</p>
+      <div class="vocab" id="vocab" style="margin-top:16px"></div>
+      <form class="addrow" id="form-vocab"><input type="text" id="f-term" placeholder="Add a term, e.g. Glimepiride" autocomplete="off"><button class="btn" type="submit">Add</button></form>
+    </div>
+  </section>
+</main>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<script src="assets/auth.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
