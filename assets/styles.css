@@ -167,6 +167,17 @@ textarea{min-height:120px;line-height:1.5;resize:vertical}
 .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;width:max-content;max-width:100%}
 .seg button{border:0;background:transparent;color:var(--muted);padding:8px 14px;font-weight:500;font-size:13.5px}
 .seg button.on{background:var(--accent-soft);color:var(--accent)}
+.drop{display:flex;align-items:center;gap:14px;border:1.5px dashed var(--line);border-radius:10px;padding:16px;background:var(--surface-2);cursor:pointer;margin-bottom:0}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.drop-ic{width:40px;height:40px;border-radius:10px;background:var(--surface);color:var(--accent);display:grid;place-items:center;flex:none}
+.drop-ic svg{width:20px;height:20px}
+.drop-t{font-size:14px;font-weight:400}
+.drop-t small{color:var(--muted);font-size:12.5px}
+.file-info{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:13.5px;flex-wrap:wrap}
+.file-info .fn{font-weight:500;min-width:0;overflow-wrap:anywhere}
+.file-info .fm{color:var(--muted);font-family:var(--mono);font-size:12px}
+.file-info .fx{margin-left:auto}
 .consent{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface-2)}
 .consent .script{font-style:italic;color:var(--fg);background:var(--surface);border-radius:6px;padding:10px 12px;margin-top:8px;font-size:14px;border-left:3px solid var(--accent)}
 .consent label.ck{align-items:flex-start;margin-top:12px}

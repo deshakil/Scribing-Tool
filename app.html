@@ -24,7 +24,7 @@
     <div class="greet"><h1 id="greet">Good morning</h1><p id="greet-sub">Here are your recent visits.</p></div>
     <div class="stats"><div class="stat"><div class="v" id="st-total">0</div><div class="l">Visits this week</div></div><div class="stat"><div class="v" id="st-draft">0</div><div class="l">Drafts waiting for review</div></div><div class="stat"><div class="v" id="st-time">1.6 min</div><div class="l">Average time from stop to draft</div></div></div>
     <div class="panel">
-      <div class="panel-h"><h2>Visits</h2><div class="sp"><button class="btn primary" id="btn-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New visit</button></div></div>
+      <div class="panel-h"><h2>Visits</h2><div class="sp"><button class="btn" id="btn-upload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg>Upload audio</button><button class="btn primary" id="btn-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New visit</button></div></div>
       <div class="vlist" id="vlist"></div>
     </div>
   </section>
@@ -34,14 +34,24 @@
     <div class="panel-h"><button class="ib" id="back-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>Visits</button><h2>New visit</h2></div>
     <div class="panel-b"><form class="form" id="form-new" style="max-width:640px">
       <div class="field"><label for="f-patient">Patient reference</label><input type="text" id="f-patient" value="R.K. · 52 M" autocomplete="off"><div class="hint">Initials or clinic ID only. No full name or phone number is stored.</div></div>
-      <div class="field"><label>Mode</label><div class="seg" id="seg-mode"><button type="button" data-v="ambient" class="on">Record consultation</button><button type="button" data-v="dictation">Dictate</button></div></div>
+      <div class="field"><label>Mode</label><div class="seg" id="seg-mode"><button type="button" data-v="ambient" class="on">Record consultation</button><button type="button" data-v="dictation">Dictate</button><button type="button" data-v="upload">Upload audio</button></div><div class="hint" id="mode-hint">Record the visit live on this device.</div></div>
       <div class="field"><label for="f-template">Note template</label><select id="f-template"><option value="soap">SOAP</option><option value="followup">Follow-up</option><option value="general">General consult</option></select></div>
+      <div class="field" id="upload-box" hidden>
+        <label for="f-file">Audio file</label>
+        <label class="drop" id="drop" for="f-file">
+          <input type="file" id="f-file" accept="audio/*,video/*,.m4a,.mp3,.wav,.aac,.ogg,.webm">
+          <span class="drop-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg></span>
+          <span class="drop-t"><b>Choose a recording</b> or drag it here<br><small>MP3, M4A, WAV, AAC, OGG, WebM · phone recordings, dictaphones, video calls</small></span>
+        </label>
+        <div class="file-info" id="file-info" hidden></div>
+        <div class="hint">Review build: the file stays on this device and is not uploaded. Its name and length are read, and a sample consultation is used for the transcript.</div>
+      </div>
       <div class="consent" id="consent-box">
         <div class="eyebrow">Patient consent</div>
         <div class="script">"I use an AI assistant that records our conversation to help me write your notes. The recording is deleted after the note is done. Is that okay with you?"</div>
-        <label class="ck"><input type="checkbox" id="f-consent"><span>Patient gave verbal consent. Time and date will be stored with this visit.</span></label>
+        <label class="ck"><input type="checkbox" id="f-consent"><span id="consent-label">Patient gave verbal consent. Time and date will be stored with this visit.</span></label>
       </div>
-      <div class="cta-row" style="margin-top:0;align-items:center"><button class="btn primary" type="submit" id="btn-start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Start recording</button><span id="start-hint" style="color:var(--muted);font-size:12.5px">Consent is required to start.</span></div>
+      <div class="cta-row" style="margin-top:0;align-items:center"><button class="btn primary" type="submit" id="btn-start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="btn-start-t">Start recording</span></button><span id="start-hint" style="color:var(--muted);font-size:12.5px">Consent is required to start.</span></div>
     </form></div>
   </section>
 

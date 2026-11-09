@@ -138,7 +138,8 @@ function show(name){
 }
 $('#tab-visits').addEventListener('click',function(){show('visits')});
 $('#tab-vocab').addEventListener('click',function(){show('vocab')});
-$('#btn-new').addEventListener('click',function(){show('new');syncConsentUI()});
+$('#btn-new').addEventListener('click',function(){setMode('ambient');show('new')});
+$('#btn-upload').addEventListener('click',function(){setMode('upload');show('new')});
 $('#back-new').addEventListener('click',function(){show('visits')});
 $('#back-ws').addEventListener('click',function(){show('visits')});
 
@@ -150,35 +151,86 @@ function renderVisits(){
   $('#st-draft').textContent=VISITS.filter(function(v){return v.status!=='signed'}).length;
   $('#greet-sub').textContent=VISITS.filter(function(v){return v.status!=='signed'}).length?'You have drafts waiting for review.':'All notes are signed.';
   $('#vlist').innerHTML=VISITS.map(function(v){
-    return '<button class="vrow" data-id="'+v.id+'"><span class="avatar">'+esc(v.patient.slice(0,2))+'</span><span><div class="t">'+esc(v.patient)+'</div><div class="m"><span>'+esc(v.date)+'</span><span>'+TEMPLATES[v.template].name+'</span><span>'+(v.mode==='ambient'?'Recorded':'Dictated')+'</span><span class="mono">'+v.dur+'</span></div></span><span class="chips">'+chipStatus(v)+chipAudio(v)+'</span></button>';
+    return '<button class="vrow" data-id="'+v.id+'"><span class="avatar">'+esc(v.patient.slice(0,2))+'</span><span><div class="t">'+esc(v.patient)+'</div><div class="m"><span>'+esc(v.date)+'</span><span>'+TEMPLATES[v.template].name+'</span><span>'+modeLabel(v)+'</span><span class="mono">'+v.dur+'</span></div></span><span class="chips">'+chipStatus(v)+chipAudio(v)+'</span></button>';
   }).join('');
   $$('.vrow').forEach(function(b){b.addEventListener('click',function(){openVisit(b.getAttribute('data-id'))})});
 }
 
 /* new visit */
-var newMode='ambient';
-$$('#seg-mode button').forEach(function(b){b.addEventListener('click',function(){
-  newMode=b.getAttribute('data-v');
-  $$('#seg-mode button').forEach(function(x){x.classList.toggle('on',x===b)});
+var newMode='ambient',pickedFile=null;
+function modeLabel(v){return v.mode==='ambient'?'Recorded':v.mode==='upload'?'Uploaded':'Dictated'}
+function setMode(m){
+  newMode=m;
+  $$('#seg-mode button').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-v')===m)});
+  $('#mode-hint').textContent=m==='ambient'?'Record the visit live on this device.':m==='upload'?'Use a recording you already have: a phone recording, a dictaphone file or a video call.':'Narrate the note yourself after the visit.';
   syncConsentUI();
-})});
+}
+$$('#seg-mode button').forEach(function(b){b.addEventListener('click',function(){setMode(b.getAttribute('data-v'))})});
 function syncConsentUI(){
-  var amb=newMode==='ambient';
-  $('#consent-box').hidden=!amb;
-  var ok=!amb||$('#f-consent').checked;
-  $('#btn-start').disabled=!ok;
-  $('#start-hint').textContent=amb?(ok?'Consent will be logged when you press start.':'Consent is required to start.'):'Dictation records only you. No patient consent step.';
+  var amb=newMode==='ambient',up=newMode==='upload';
+  $('#consent-box').hidden=!(amb||up);
+  $('#upload-box').hidden=!up;
+  $('#consent-label').textContent=up?'The patient consented to this recording at the time of the visit.':'Patient gave verbal consent. Time and date will be stored with this visit.';
+  var consentOk=!(amb||up)||$('#f-consent').checked;
+  var fileOk=!up||!!pickedFile;
+  $('#btn-start').disabled=!(consentOk&&fileOk);
+  $('#btn-start-t').textContent=up?'Transcribe and draft note':'Start recording';
+  $('#start-hint').textContent=up?(!fileOk?'Choose an audio file to continue.':!consentOk?'Confirm consent to continue.':'The note will be drafted in the '+TEMPLATES[$('#f-template').value].name+' template.'):amb?(consentOk?'Consent will be logged when you press start.':'Consent is required to start.'):'Dictation records only you. No patient consent step.';
 }
 $('#f-consent').addEventListener('change',syncConsentUI);
+$('#f-template').addEventListener('change',syncConsentUI);
+
+/* file picking (upload mode) */
+function fmtBytes(b){return b<1048576?Math.round(b/1024)+' KB':(b/1048576).toFixed(1)+' MB'}
+function pickFile(file){
+  if(!file)return;
+  pickedFile={file:file,dur:null};
+  var info=$('#file-info');
+  info.hidden=false;
+  info.innerHTML='<span class="fn">'+esc(file.name)+'</span><span class="fm">'+fmtBytes(file.size)+' · reading length…</span><button type="button" class="ib fx" id="file-clear">Remove</button>';
+  $('#file-clear').addEventListener('click',function(){pickedFile=null;$('#f-file').value='';info.hidden=true;syncConsentUI()});
+  try{
+    var url=URL.createObjectURL(file),a=new Audio();
+    a.preload='metadata';
+    a.addEventListener('loadedmetadata',function(){if(isFinite(a.duration)&&pickedFile&&pickedFile.file===file){pickedFile.dur=Math.round(a.duration);$('.fm',info).textContent=fmtBytes(file.size)+' · '+fmt(pickedFile.dur)}URL.revokeObjectURL(url)});
+    a.addEventListener('error',function(){if(pickedFile&&pickedFile.file===file)$('.fm',info).textContent=fmtBytes(file.size)+' · length unknown';URL.revokeObjectURL(url)});
+    a.src=url;
+  }catch(e){$('.fm',info).textContent=fmtBytes(file.size)}
+  syncConsentUI();
+}
+$('#f-file').addEventListener('change',function(){pickFile(this.files&&this.files[0])});
+(function(){
+  var d=$('#drop');
+  ['dragenter','dragover'].forEach(function(ev){d.addEventListener(ev,function(e){e.preventDefault();d.classList.add('over')})});
+  ['dragleave','drop'].forEach(function(ev){d.addEventListener(ev,function(e){e.preventDefault();d.classList.remove('over')})});
+  d.addEventListener('drop',function(e){var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)pickFile(f)});
+})();
+
 $('#form-new').addEventListener('submit',function(e){
   e.preventDefault();
   var tpl=$('#f-template').value;
   state.pending={patient:$('#f-patient').value.trim()||'Unnamed · —',template:tpl,mode:newMode};
+  if(newMode==='upload'){
+    if(!pickedFile)return;
+    state.pending.file=pickedFile.file.name;state.pending.size=pickedFile.file.size;
+    var dur=pickedFile.dur?fmt(pickedFile.dur):'02:55';
+    runProcessing(function(){createVisit(dur)});
+    return;
+  }
   $('#rec-title').textContent=(newMode==='ambient'?'Recording consultation':'Recording dictation')+' · '+state.pending.patient;
   $('#rec-mode').textContent=newMode==='ambient'?'Ambient':'Dictation';
   $('#rec-template').textContent=TEMPLATES[tpl].name;
   show('rec'); startRec();
 });
+function createVisit(dur){
+  var p=state.pending,dict=p.mode==='dictation';
+  var v={id:'v'+(VISITS.length+1),patient:p.patient,date:'Today, '+nowHM(),template:p.template,mode:p.mode,status:'draft',dur:dur,consentAt:dict?null:'00:00',
+    transcript:dict?DICT_TRANSCRIPT:AMBIENT_TRANSCRIPT,items:dict?dictItems():ambientItems(),na:dict?DICT_NA:AMBIENT_NA,audio:'kept',file:p.file||null};
+  VISITS.unshift(v);
+  pickedFile=null;$('#f-file').value='';$('#file-info').hidden=true;
+  openVisit(v.id);
+  toast('Draft note ready. Review, edit and sign.');
+}
 
 /* recording */
 function fmt(s){var m=Math.floor(s/60),x=s%60;return (m<10?'0':'')+m+':'+(x<10?'0':'')+x}
@@ -220,21 +272,15 @@ $('#btn-pause').addEventListener('click',function(){
 $('#btn-stop').addEventListener('click',function(){
   var dur=fmt(Math.max(state.recSec,1));
   stopRec();
-  runProcessing(function(){
-    var p=state.pending,amb=p.mode==='ambient';
-    var v={id:'v'+(VISITS.length+1),patient:p.patient,date:'Today, '+nowHM(),template:p.template,mode:p.mode,status:'draft',dur:dur,consentAt:amb?'00:00':null,
-      transcript:amb?AMBIENT_TRANSCRIPT:DICT_TRANSCRIPT,items:amb?ambientItems():dictItems(),na:amb?AMBIENT_NA:DICT_NA,audio:'kept'};
-    VISITS.unshift(v);
-    openVisit(v.id);
-    toast('Draft note ready. Review, edit and sign.');
-  });
+  runProcessing(function(){createVisit(dur)});
 });
 function nowHM(){var d=new Date();return (d.getHours()<10?'0':'')+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes()}
 
 /* processing */
 function runProcessing(done){
   var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var steps=[['Uploading audio','0.4 s'],['Transcribing with medical speech model','6 s'],['Separating speakers and matching vocabulary','1 s'],['Drafting note in '+TEMPLATES[state.pending.template].name+' template','9 s'],['Checking every line against the transcript','3 s']];
+  var up=state.pending.mode==='upload';
+  var steps=[[up?'Uploading '+state.pending.file+' ('+fmtBytes(state.pending.size)+')':'Uploading audio',up?'2 s':'0.4 s'],['Transcribing with medical speech model','6 s'],['Separating speakers and matching vocabulary','1 s'],['Drafting note in '+TEMPLATES[state.pending.template].name+' template','9 s'],['Checking every line against the transcript','3 s']];
   var box=$('#proc');
   box.innerHTML=steps.map(function(s){return '<div class="st"><span class="ic"></span><span>'+s[0]+'</span><span class="tm">'+s[1]+'</span></div>'}).join('');
   show('proc');
@@ -257,7 +303,7 @@ function openVisit(id){
 function renderWS(){
   var v=state.visit,t=TEMPLATES[v.template],signed=v.status==='signed';
   $('#ws-title').textContent=v.patient;
-  $('#ws-meta').innerHTML='<span class="chip">'+esc(v.date)+'</span><span class="chip acc">'+t.name+'</span><span class="chip">'+(v.mode==='ambient'?'Recorded':'Dictated')+' · '+v.dur+'</span>'+chipStatus(v)+(v.consentAt?'<span class="chip">'+ICON_CHECK+'Verbal consent at '+v.consentAt+'</span>':'')+chipAudio(v);
+  $('#ws-meta').innerHTML='<span class="chip">'+esc(v.date)+'</span><span class="chip acc">'+t.name+'</span><span class="chip" title="'+esc(v.file||'')+'">'+modeLabel(v)+' · '+v.dur+(v.file?' · '+esc(v.file):'')+'</span>'+chipStatus(v)+(v.consentAt?'<span class="chip">'+ICON_CHECK+'Verbal consent at '+v.consentAt+'</span>':'')+chipAudio(v);
   $('#ws-tname').textContent=t.name+' · '+v.items.length+' statements';
   $('#ws-trmeta').textContent=v.transcript.length+' turns · '+v.dur;
   var acts=$('#ws-acts');
@@ -285,18 +331,18 @@ function renderNote(){
       html+='<div class="items">'+items.map(function(i){
         var uns=unsupported(i),on=state.sel===i.id;
         var ev=i.ev.map(function(id){var s=segById[id];return s?'<span>'+s.t+'</span>':''}).join('');
-        return '<button class="item'+(uns?' uns':'')+(on?' on':'')+(i.edited?' edited':'')+'" data-item="'+i.id+'"><span class="bul"></span><span><span>'+esc(i.text)+'</span>'+(i.edited?'<span class="edtag">edited by doctor</span>':'')+
+        return '<div class="item'+(uns?' uns':'')+(on?' on':'')+(i.edited?' edited':'')+'" role="button" tabindex="0" data-item="'+i.id+'"><span class="bul"></span><span><span>'+esc(i.text)+'</span>'+(i.edited?'<span class="edtag">edited by doctor</span>':'')+
           (uns?'<span class="flag">'+ICON_WARN+'No source in transcript'+(signed?'':' <button data-act="remove" data-item="'+i.id+'">Remove</button> <button data-act="keep" data-item="'+i.id+'">Keep as my own</button>')+'</span>':(i.ev.length?'<span class="ev">'+ev+'</span>':''))+
-          '</span></button>';
+          '</span></div>';
       }).join('')+'</div>';
     }
     return html+'</div>';
   }).join('');
   $('#na').innerHTML='<b>Not addressed in this visit</b> · listed instead of guessed<div class="pills">'+v.na.map(function(x){return '<span>'+esc(x)+'</span>'}).join('')+'</div>';
-  $$('#note .item').forEach(function(b){b.addEventListener('click',function(e){
-    if(e.target.closest('[data-act]'))return;
-    selectItem(b.getAttribute('data-item'));
-  })});
+  $$('#note .item').forEach(function(b){
+    b.addEventListener('click',function(e){if(e.target.closest('[data-act]'))return;selectItem(b.getAttribute('data-item'))});
+    b.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&!e.target.closest('[data-act]')){e.preventDefault();selectItem(b.getAttribute('data-item'))}});
+  });
   $$('#note [data-act]').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();onAct(b)})});
   var ta=$('#edit-ta'); if(ta)ta.focus();
 }
@@ -342,7 +388,7 @@ function renderTranscript(){
   $('#tr').innerHTML=v.transcript.map(function(s){
     return '<div class="seg-row '+s.who+(s.consent?' consent':'')+'" data-seg="'+s.id+'"><span class="t">'+s.t+'</span><span><div class="who">'+(s.who==='d'?'Doctor':'Patient')+(s.consent?' · consent':'')+'</div><div class="x">'+esc(s.text)+'</div></span></div>';
   }).join('');
-  $('#tr-foot').innerHTML=(v.audio==='deleted'?'<span class="chip">Audio deleted after signing</span>':'<span class="chip warn">Audio kept · deleted 24 h after signing</span>')+'<span>'+(v.mode==='ambient'?'Speaker labels from the medical speech model.':'Dictation: single speaker.')+'</span>';
+  $('#tr-foot').innerHTML=(v.audio==='deleted'?'<span class="chip">Audio deleted after signing</span>':'<span class="chip warn">Audio kept · deleted 24 h after signing</span>')+'<span>'+(v.mode==='dictation'?'Dictation: single speaker.':'Speaker labels from the medical speech model.')+'</span>';
 }
 function syncMtabs(){
   var note=state.mtab==='note';
@@ -370,7 +416,7 @@ function openExport(){
   var html='<div class="modal" id="modal"><div class="box"><div class="bh"><h3>Export preview</h3><span class="sp"><button class="btn sm" id="m-copy">Copy as text</button><button class="btn sm primary" id="m-close">Close</button></span></div>'+
     '<div class="doc"><div class="dh"><div><b>'+esc(me.clinic)+'</b><div style="font-size:12.5px;color:var(--muted)">'+esc(me.name)+' · '+esc(me.role)+'</div></div><div class="r">'+esc(v.patient)+'<br>'+esc(v.date)+'<br>'+t.name+' note</div></div>'+body+
     (v.na.length?'<h4>Not addressed</h4><p style="font-size:13.5px">'+esc(v.na.join(', '))+'</p>':'')+
-    '<div class="sig">'+(v.status==='signed'?'Electronically signed by '+esc(me.name)+' · '+esc(v.signedAt||''):'Unsigned draft · not for the record')+'<br>Drafted with ClinicScribe from a '+(v.mode==='ambient'?'recorded consultation':'dictation')+' ('+v.dur+')'+(v.consentAt?' · patient consent at '+v.consentAt:'')+'</div></div>'+
+    '<div class="sig">'+(v.status==='signed'?'Electronically signed by '+esc(me.name)+' · '+esc(v.signedAt||''):'Unsigned draft · not for the record')+'<br>Drafted with ClinicScribe from '+(v.mode==='dictation'?'a dictation':v.mode==='upload'?'an uploaded recording':'a recorded consultation')+' ('+v.dur+')'+(v.consentAt?' · patient consent at '+v.consentAt:'')+'</div></div>'+
     '<div style="padding:10px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)">This is how the PDF will look. The download button is part of the full build.</div></div></div>';
   $('#modal-root').innerHTML=html;
   $('#m-close').addEventListener('click',function(){$('#modal-root').innerHTML=''});
@@ -394,5 +440,6 @@ function copyText(text,msg){
 var toastT=null;
 function toast(msg){var r=$('#toast-root');r.innerHTML='<div class="toast">'+esc(msg)+'</div>';clearTimeout(toastT);toastT=setTimeout(function(){r.innerHTML=''},2600)}
 
+setMode('ambient');
 show('visits');
 })();
